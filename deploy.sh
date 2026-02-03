@@ -64,12 +64,18 @@ cat > "$DIST_FOLDER/StretchTimer.sh" << 'LAUNCHER_EOF'
 # Stretch Timer Launcher
 # ============================================
 
+# Detect if script is being sourced (use return) or executed (use exit)
+_exit_cmd="exit"
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    _exit_cmd="return"
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR" || { echo "ERROR: Cannot access script directory."; exit 1; }
+cd "$SCRIPT_DIR" || { echo "ERROR: Cannot access script directory."; $_exit_cmd 1; }
 
 if [[ ! -f "stretch_timer.py" ]]; then
     echo "ERROR: stretch_timer.py not found."
-    exit 1
+    $_exit_cmd 1
 fi
 
 # Check for Python
@@ -89,7 +95,7 @@ if [[ -z "$PYTHON_CMD" ]]; then
     echo "  Fedora:        sudo dnf install python3 python3-tkinter python3-pip"
     echo "  Arch:          sudo pacman -S python python-tkinter python-pip"
     echo ""
-    exit 1
+    $_exit_cmd 1
 fi
 
 echo "Found Python: $PYTHON_CMD"
@@ -106,7 +112,7 @@ if ! $PYTHON_CMD -c "import tkinter" 2>/dev/null; then
     echo "  Fedora:        sudo dnf install python3-tkinter"
     echo "  Arch:          sudo pacman -S tk"
     echo ""
-    exit 1
+    $_exit_cmd 1
 fi
 
 # Install plyer (optional, for notifications)
