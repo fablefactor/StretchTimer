@@ -17,8 +17,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 # Configuration
-DIST_FOLDER="dist-linux"
-ARCHIVE_FILE="StretchTimer-Linux.tar.gz"
+DIST_FOLDER="dist-linux/stretch_timer"
+ARCHIVE_FILE="stretch_timer-linux.tar.gz"
 SOURCE_FILE="stretch_timer.py"
 
 # ==========================================
@@ -38,7 +38,7 @@ echo "       OK - $SOURCE_FILE found"
 echo ""
 echo "[2/5] Preparing distribution folder..."
 
-rm -rf "$DIST_FOLDER"
+rm -rf "dist-linux"
 mkdir -p "$DIST_FOLDER"
 echo "       OK - Created $DIST_FOLDER/"
 
@@ -94,6 +94,20 @@ fi
 
 echo "Found Python: $PYTHON_CMD"
 echo "Checking dependencies..."
+
+# Check for tkinter
+if ! $PYTHON_CMD -c "import tkinter" 2>/dev/null; then
+    echo ""
+    echo "ERROR: tkinter is not installed."
+    echo ""
+    echo "Please install tkinter for your distribution:"
+    echo ""
+    echo "  Ubuntu/Debian: sudo apt install python3-tk"
+    echo "  Fedora:        sudo dnf install python3-tkinter"
+    echo "  Arch:          sudo pacman -S tk"
+    echo ""
+    exit 1
+fi
 
 # Install plyer (optional, for notifications)
 $PYTHON_CMD -m pip install plyer --quiet --user 2>/dev/null || true
@@ -180,7 +194,7 @@ echo ""
 echo "[5/5] Creating tar.gz archive..."
 
 rm -f "$ARCHIVE_FILE"
-tar -czf "$ARCHIVE_FILE" -C "$DIST_FOLDER" .
+tar -czf "$ARCHIVE_FILE" -C "dist-linux" stretch_timer
 
 ARCHIVE_SIZE=$(du -h "$ARCHIVE_FILE" | cut -f1)
 echo "       OK - $ARCHIVE_FILE created ($ARCHIVE_SIZE)"

@@ -69,14 +69,14 @@ except ImportError:
 | Platform | Script | Output |
 |----------|--------|--------|
 | Windows | `Deploy.bat` | `StretchTimer-Windows.zip` |
-| Linux | `deploy.sh` | `StretchTimer-Linux.tar.gz` |
+| Linux | `deploy.sh` | `stretch_timer-linux.tar.gz` |
 
 ### CI/CD (`.github/workflows/release.yml`)
 
 GitHub Actions workflow that automates release builds:
 - **Trigger:** When a GitHub Release is created
 - **Jobs:** Two parallel jobs - `build-windows` and `build-linux`
-- **Output:** `StretchTimer-Windows.zip` and `StretchTimer-Linux.tar.gz` attached to the release
+- **Output:** `StretchTimer-Windows.zip` and `stretch_timer-linux.tar.gz` attached to the release
 
 **IMPORTANT: Keep deployment scripts and release.yml in sync!**
 
@@ -116,7 +116,7 @@ Test locally with `Deploy.bat` (Windows) or `./deploy.sh` (Linux) before pushing
 
 4. **CI/CD runs automatically:**
    - GitHub Actions builds both packages in parallel
-   - `StretchTimer-Windows.zip` and `StretchTimer-Linux.tar.gz` get attached to the release
+   - `StretchTimer-Windows.zip` and `stretch_timer-linux.tar.gz` get attached to the release
 
 5. **Verify:** Check the release page for both attached files
 
@@ -126,6 +126,15 @@ Use semantic versioning: `vMAJOR.MINOR.PATCH`
 - **MAJOR:** Breaking changes
 - **MINOR:** New features (backward compatible)
 - **PATCH:** Bug fixes
+
+### GitHub CLI
+
+**Location:** `C:\Program Files\GitHub CLI\gh.exe`
+
+Create releases via CLI:
+```bash
+"C:\Program Files\GitHub CLI\gh.exe" release create v1.0.0 --title "v1.0.0 - Release" --notes "Release notes here"
+```
 
 ## Key Constraints
 

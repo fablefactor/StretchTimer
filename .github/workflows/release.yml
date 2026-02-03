@@ -155,14 +155,14 @@ jobs:
 
       - name: Create Linux distribution package
         run: |
-          # Create dist folder
-          mkdir -p dist-linux
+          # Create dist folder with stretch_timer subdirectory
+          mkdir -p dist-linux/stretch_timer
 
           # Copy main application
-          cp stretch_timer.py dist-linux/
+          cp stretch_timer.py dist-linux/stretch_timer/
 
           # Create launcher shell script
-          cat > dist-linux/StretchTimer.sh << 'LAUNCHER_EOF'
+          cat > dist-linux/stretch_timer/StretchTimer.sh << 'LAUNCHER_EOF'
           #!/bin/bash
           # ============================================
           # Stretch Timer Launcher
@@ -199,6 +199,20 @@ jobs:
           echo "Found Python: $PYTHON_CMD"
           echo "Checking dependencies..."
 
+          # Check for tkinter
+          if ! $PYTHON_CMD -c "import tkinter" 2>/dev/null; then
+              echo ""
+              echo "ERROR: tkinter is not installed."
+              echo ""
+              echo "Please install tkinter for your distribution:"
+              echo ""
+              echo "  Ubuntu/Debian: sudo apt install python3-tk"
+              echo "  Fedora:        sudo dnf install python3-tkinter"
+              echo "  Arch:          sudo pacman -S tk"
+              echo ""
+              exit 1
+          fi
+
           # Install plyer (optional, for notifications)
           $PYTHON_CMD -m pip install plyer --quiet --user 2>/dev/null || true
 
@@ -206,10 +220,10 @@ jobs:
           $PYTHON_CMD "$SCRIPT_DIR/stretch_timer.py" &
           LAUNCHER_EOF
 
-          chmod +x dist-linux/StretchTimer.sh
+          chmod +x dist-linux/stretch_timer/StretchTimer.sh
 
           # Create README
-          cat > dist-linux/README.txt << 'README_EOF'
+          cat > dist-linux/stretch_timer/README.txt << 'README_EOF'
           STRETCH TIMER (Linux)
           =====================
 
@@ -275,16 +289,16 @@ jobs:
           X-GNOME-Autostart-enabled=true
           README_EOF
 
-          # Create tar.gz archive
-          tar -czf StretchTimer-Linux.tar.gz -C dist-linux .
+          # Create tar.gz archive (includes stretch_timer/ subdirectory)
+          tar -czf stretch_timer-linux.tar.gz -C dist-linux stretch_timer
 
           # Show contents
-          echo "Created StretchTimer-Linux.tar.gz with contents:"
-          ls -la dist-linux/
+          echo "Created stretch_timer-linux.tar.gz with contents:"
+          ls -la dist-linux/stretch_timer/
 
       - name: Upload Linux release asset
         uses: softprops/action-gh-release@v1
         with:
-          files: StretchTimer-Linux.tar.gz
+          files: stretch_timer-linux.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
