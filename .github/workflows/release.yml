@@ -131,8 +131,8 @@ jobs:
           The app will now start automatically when you log in.
           '@ | Out-File -FilePath dist/README.txt -Encoding ASCII
 
-          # Create ZIP
-          Compress-Archive -Path dist -DestinationPath StretchTimer.zip -Force
+          # Create ZIP (archive contents of dist, not the folder itself)
+          Compress-Archive -Path dist/* -DestinationPath StretchTimer.zip -Force
 
           # Show contents
           Write-Host "Created StretchTimer.zip with contents:"

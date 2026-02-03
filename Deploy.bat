@@ -246,8 +246,8 @@ if exist "%ZIP_FILE%" (
     )
 )
 
-:: Create zip using PowerShell
-powershell -Command "try { Compress-Archive -Path '%DIST_FOLDER%' -DestinationPath '%ZIP_FILE%' -Force -ErrorAction Stop } catch { Write-Host $_.Exception.Message; exit 1 }" 2>nul
+:: Create zip using PowerShell (archive contents, not the folder itself)
+powershell -Command "try { Compress-Archive -Path '%DIST_FOLDER%\*' -DestinationPath '%ZIP_FILE%' -Force -ErrorAction Stop } catch { Write-Host $_.Exception.Message; exit 1 }" 2>nul
 if !ERRORLEVEL! neq 0 (
     echo ERROR: Failed to create ZIP archive.
     goto :error
