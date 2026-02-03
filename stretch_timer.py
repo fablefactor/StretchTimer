@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Stretch Reminder Timer - Windows GUI Application.
+Stretch Reminder Timer - Cross-Platform GUI Application.
 
 A desktop application that reminds users to get up and stretch at configurable
 intervals. Features include:
@@ -28,15 +28,81 @@ import time
 import random
 from datetime import datetime
 import threading
-import winsound
 import json
 import os
+import sys
+import subprocess
+
+# Platform-specific audio support
+if sys.platform == "win32":
+    try:
+        import winsound
+        HAS_WINSOUND = True
+    except ImportError:
+        HAS_WINSOUND = False
+else:
+    HAS_WINSOUND = False
 
 try:
     from plyer import notification
     HAS_PLYER = True
 except ImportError:
     HAS_PLYER = False
+
+
+def play_notification_sound(root=None):
+    """
+    Play a notification sound in a cross-platform manner.
+
+    Uses platform-specific implementations with graceful degradation:
+    - Windows: winsound.PlaySound() with system sounds
+    - Linux: subprocess calls to paplay, aplay, or canberra-gtk-play
+    - Fallback: tkinter.bell()
+
+    Args:
+        root: tkinter root window (used for bell() fallback)
+
+    Returns:
+        bool: True if sound was played, False otherwise
+    """
+    # Windows: use winsound
+    if sys.platform == "win32" and HAS_WINSOUND:
+        try:
+            winsound.PlaySound(
+                "SystemExclamation", winsound.SND_ALIAS | winsound.SND_ASYNC
+            )
+            return True
+        except Exception:
+            pass
+
+    # Linux: try various sound utilities
+    elif sys.platform.startswith("linux"):
+        sound_commands = [
+            ["paplay", "/usr/share/sounds/freedesktop/stereo/complete.oga"],
+            ["paplay", "/usr/share/sounds/freedesktop/stereo/bell.oga"],
+            ["aplay", "/usr/share/sounds/freedesktop/stereo/complete.oga"],
+            ["canberra-gtk-play", "-i", "complete"],
+            ["canberra-gtk-play", "-i", "bell"],
+        ]
+        for cmd in sound_commands:
+            try:
+                subprocess.Popen(
+                    cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+                )
+                return True
+            except (FileNotFoundError, OSError):
+                continue
+
+    # Fallback: tkinter bell
+    if root:
+        try:
+            root.bell()
+            return True
+        except Exception:
+            pass
+
+    return False
+
 
 # Settings file path - stored in same directory as script
 SETTINGS_FILE = os.path.join(
@@ -459,7 +525,7 @@ class StretchTimerApp:
         """Initialize the application, create UI, and load settings."""
         self.root = tk.Tk()
         self.root.title("Stretch Reminder Timer")
-        self.root.geometry("480x820")
+        self.root.geometry("480x860")
         self.root.resizable(False, False)
 
         # Timer state
@@ -485,6 +551,9 @@ class StretchTimerApp:
         # Popup settings
         self.popup_timeout_seconds = tk.IntVar(value=180)
         self.popup_persistent = tk.BooleanVar(value=False)
+
+        # Sound settings
+        self.sound_enabled = tk.BooleanVar(value=True)
 
         # Custom message
         self.custom_message = tk.StringVar(value="Time to Stretch!")
@@ -703,6 +772,19 @@ class StretchTimerApp:
             command=self.toggle_persistent_popup
         )
         self.persistent_check.pack(side=tk.LEFT)
+
+        # Sound notification toggle
+        sound_frame = tk.Frame(self.settings_frame)
+        sound_frame.pack(fill=tk.X, pady=1)
+
+        self.sound_check = tk.Checkbutton(
+            sound_frame,
+            text="Play sound on reminder",
+            variable=self.sound_enabled,
+            font=("Segoe UI", 9),
+            command=self.save_settings
+        )
+        self.sound_check.pack(side=tk.LEFT)
 
         # Stats section
         self.stats_frame = tk.LabelFrame(
@@ -1100,11 +1182,9 @@ class StretchTimerApp:
         # Create step labels for main stretch + secondary exercise
         self.create_combined_step_labels(stretch, secondary_exercise, secondary_type)
 
-        # Play sound
-        try:
-            winsound.PlaySound("SystemExclamation", winsound.SND_ALIAS | winsound.SND_ASYNC)
-        except Exception:
-            pass
+        # Play sound (if enabled)
+        if self.sound_enabled.get():
+            play_notification_sound(self.root)
 
         # Desktop notification
         if HAS_PLYER:
@@ -1256,7 +1336,7 @@ class StretchTimerApp:
         """
         popup = tk.Toplevel(self.root)
         popup.title("Time to Stretch!")
-        popup.geometry("450x560")
+        popup.geometry("450x600")
         popup.configure(bg=self.colors["card_bg"])
         popup.attributes("-topmost", True)
         popup.resizable(False, False)
@@ -1264,7 +1344,7 @@ class StretchTimerApp:
         # Center on screen
         popup.update_idletasks()
         x = (popup.winfo_screenwidth() - 450) // 2
-        y = (popup.winfo_screenheight() - 560) // 2
+        y = (popup.winfo_screenheight() - 600) // 2
         popup.geometry(f"+{x}+{y}")
 
         c = self.colors
@@ -1483,6 +1563,8 @@ class StretchTimerApp:
                     self.popup_timeout_seconds.set(settings["popup_timeout_seconds"])
                 if "popup_persistent" in settings:
                     self.popup_persistent.set(settings["popup_persistent"])
+                if "sound_enabled" in settings:
+                    self.sound_enabled.set(settings["sound_enabled"])
         except (json.JSONDecodeError, IOError):
             # If file is corrupted or unreadable, use defaults
             pass
@@ -1503,6 +1585,7 @@ class StretchTimerApp:
             "custom_message": self.custom_message.get(),
             "popup_timeout_seconds": self.popup_timeout_seconds.get(),
             "popup_persistent": self.popup_persistent.get(),
+            "sound_enabled": self.sound_enabled.get(),
         }
         try:
             with open(SETTINGS_FILE, "w") as f:

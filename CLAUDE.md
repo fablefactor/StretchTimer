@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Windows desktop application that reminds users to stretch at configurable intervals. Built with Python/tkinter for the GUI with plyer for desktop notifications.
+A cross-platform desktop application (Windows + Linux) that reminds users to stretch at configurable intervals. Built with Python/tkinter for the GUI with plyer for desktop notifications.
 
 ## Running the Application
 
@@ -20,7 +20,7 @@ python stretch_timer.py
 
 - **GUI Framework:** tkinter with ttk widgets
 - **Notifications:** plyer library (optional, gracefully degrades)
-- **Audio:** Windows-native winsound
+- **Audio:** Cross-platform - winsound on Windows, paplay/aplay on Linux, tkinter bell() fallback
 - **Threading:** Background timer loop runs in separate thread, uses `root.after()` for thread-safe UI updates
 - **Persistence:** JSON settings file (`stretch_timer_settings.json`) in the same directory
 
@@ -32,29 +32,100 @@ python stretch_timer.py
 
 **Exercise pairing:** Every stretch reminder shows a random body stretch AND alternates between eye exercises and breathing exercises.
 
-### Deployment (`Deploy.bat`)
+## Cross-Platform Support
 
-Creates a distributable ZIP package locally for testing. Users need Python installed (guided to Microsoft Store if missing).
+### Platform Detection
+
+The application uses `sys.platform` to detect the operating system:
+- `win32` - Windows
+- Starts with `linux` - Linux distributions
+
+### Audio
+
+Audio notifications use platform-specific implementations with graceful degradation:
+
+- **Windows:** `winsound.PlaySound()` with system sounds
+- **Linux:** Subprocess calls to `paplay`, `aplay`, or `canberra-gtk-play` with freedesktop sounds
+- **Fallback:** `tkinter.bell()` if platform-specific methods fail
+
+The `sound_enabled` setting allows users to disable sound entirely via a checkbox in Settings.
+
+### Notifications
+
+Desktop notifications use plyer, which is cross-platform. The import uses graceful degradation:
+
+```python
+try:
+    from plyer import notification
+    HAS_PLYER = True
+except ImportError:
+    HAS_PLYER = False
+```
+
+## Deployment
+
+### Local Testing Scripts
+
+| Platform | Script | Output |
+|----------|--------|--------|
+| Windows | `Deploy.bat` | `StretchTimer-Windows.zip` |
+| Linux | `deploy.sh` | `StretchTimer-Linux.tar.gz` |
 
 ### CI/CD (`.github/workflows/release.yml`)
 
 GitHub Actions workflow that automates release builds:
 - **Trigger:** When a GitHub Release is created
-- **Runs on:** `windows-latest`
-- **Output:** Builds `StretchTimer.zip` and attaches it to the release
+- **Jobs:** Two parallel jobs - `build-windows` and `build-linux`
+- **Output:** `StretchTimer-Windows.zip` and `StretchTimer-Linux.tar.gz` attached to the release
 
-**IMPORTANT: Keep Deploy.bat and release.yml in sync!**
+**IMPORTANT: Keep deployment scripts and release.yml in sync!**
 
-The workflow replicates `Deploy.bat` logic in PowerShell. These cannot share code (batch vs PowerShell), so when updating one, update the other:
+The workflow replicates both `Deploy.bat` (PowerShell) and `deploy.sh` (bash) logic. When updating one, update the others:
 
-| Change | Update in Deploy.bat | Update in release.yml |
-|--------|---------------------|----------------------|
-| Files included in ZIP | `copy` commands in Step 3 | `Copy-Item` in PowerShell |
-| Launcher script content | Heredoc in Step 4 | `@'...'@` block for StretchTimer.bat |
-| README.txt content | Heredoc in Step 4 | `@'...'@` block for README.txt |
-| ZIP structure | `DIST_FOLDER` variable | `dist` folder creation |
+| Change | Deploy.bat | deploy.sh | release.yml |
+|--------|------------|-----------|-------------|
+| Files in archive | `copy` commands | `cp` commands | `Copy-Item` / `cp` |
+| Windows launcher | Heredoc Step 4 | N/A | PowerShell `@'...'@` block |
+| Linux launcher | N/A | Heredoc | Bash `cat > ... << 'EOF'` |
+| Windows README | Heredoc Step 4 | N/A | PowerShell `@'...'@` block |
+| Linux README | N/A | Heredoc | Bash `cat > ... << 'EOF'` |
 
-Test locally with `Deploy.bat` before pushing changes that affect the release workflow.
+Test locally with `Deploy.bat` (Windows) or `./deploy.sh` (Linux) before pushing changes.
+
+## Deploying to GitHub
+
+### Creating a Release
+
+1. **Test locally:**
+   - Windows: Run `Deploy.bat`, extract ZIP, test `StretchTimer.bat`
+   - Linux: Run `./deploy.sh`, extract tar.gz, test `./StretchTimer.sh`
+
+2. **Commit and push** all changes to `master`:
+   ```bash
+   git add .
+   git commit -m "Your commit message"
+   git push origin master
+   ```
+
+3. **Create a GitHub Release:**
+   - Go to your repo on GitHub → Releases → "Create a new release"
+   - Click "Choose a tag" → type a version (e.g., `v1.0.0`) → "Create new tag"
+   - Release title: e.g., "v1.0.0 - Cross-Platform Release"
+   - Description: List changes/features
+   - Click "Publish release"
+
+4. **CI/CD runs automatically:**
+   - GitHub Actions builds both packages in parallel
+   - `StretchTimer-Windows.zip` and `StretchTimer-Linux.tar.gz` get attached to the release
+
+5. **Verify:** Check the release page for both attached files
+
+### Version Tags
+
+Use semantic versioning: `vMAJOR.MINOR.PATCH`
+- **MAJOR:** Breaking changes
+- **MINOR:** New features (backward compatible)
+- **PATCH:** Bug fixes
 
 ## Key Constraints
 

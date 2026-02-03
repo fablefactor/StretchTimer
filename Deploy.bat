@@ -2,8 +2,8 @@
 setlocal EnableDelayedExpansion
 
 :: ============================================
-:: Stretch Timer - Deployment Script
-:: Creates StretchTimer.zip for distribution
+:: Stretch Timer - Windows Deployment Script
+:: Creates StretchTimer-Windows.zip for distribution
 :: ============================================
 
 title Stretch Timer - Deploy
@@ -23,7 +23,7 @@ cd /d "%SCRIPT_DIR%" || (
 
 :: Configuration
 set "DIST_FOLDER=dist"
-set "ZIP_FILE=StretchTimer.zip"
+set "ZIP_FILE=StretchTimer-Windows.zip"
 set "SOURCE_FILE=stretch_timer.py"
 
 :: ==========================================
