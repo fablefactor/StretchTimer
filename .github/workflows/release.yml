@@ -1,0 +1,143 @@
+name: Build Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create distribution package
+        shell: pwsh
+        run: |
+          # Create dist folder
+          New-Item -ItemType Directory -Path dist -Force
+
+          # Copy main application
+          Copy-Item stretch_timer.py dist/
+
+          # Create launcher batch file
+          @'
+          @echo off
+          setlocal EnableDelayedExpansion
+
+          title Stretch Timer
+
+          set "SCRIPT_DIR=%~dp0"
+          cd /d "%SCRIPT_DIR%" || (
+              echo ERROR: Cannot access script directory.
+              pause
+              exit /b 1
+          )
+
+          if not exist "stretch_timer.py" (
+              echo ERROR: stretch_timer.py not found.
+              pause
+              exit /b 1
+          )
+
+          :check_python
+          set "PYTHON_CMD="
+
+          python --version >nul 2>&1
+          if !ERRORLEVEL! equ 0 (
+              set "PYTHON_CMD=python"
+              goto :python_found
+          )
+
+          py --version >nul 2>&1
+          if !ERRORLEVEL! equ 0 (
+              set "PYTHON_CMD=py"
+              goto :python_found
+          )
+
+          echo Python not found. Opening installation instructions...
+
+          where powershell >nul 2>&1
+          if !ERRORLEVEL! neq 0 (
+              echo.
+              echo Python Required - Install from Microsoft Store or python.org
+              pause
+              exit /b 1
+          )
+
+          powershell -Command "Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('Stretch Timer requires Python.`n`nClick OK to open Microsoft Store.`n`nAfter installing, click Recheck.', 'Python Required', 'OK', 'Information')" >nul 2>&1
+
+          start "" "ms-windows-store://pdp/?productid=9NCVDN91XZQP"
+
+          :recheck_dialog
+          powershell -Command "Add-Type -AssemblyName PresentationFramework; $result = [System.Windows.MessageBox]::Show('Click OK to recheck for Python.`nClick Cancel to quit.', 'Recheck', 'OKCancel', 'Question'); if ($result -eq 'OK') { exit 0 } else { exit 1 }" >nul 2>&1
+          if !ERRORLEVEL! equ 0 (
+              goto :check_python
+          ) else (
+              exit /b 0
+          )
+
+          :python_found
+          echo Found Python: !PYTHON_CMD!
+          echo Checking dependencies...
+          !PYTHON_CMD! -m pip install plyer --quiet --disable-pip-version-check >nul 2>&1
+          echo Starting Stretch Timer...
+          start "" !PYTHON_CMD!w "%SCRIPT_DIR%stretch_timer.py"
+          '@ | Out-File -FilePath dist/StretchTimer.bat -Encoding ASCII
+
+          # Create README
+          @'
+          STRETCH TIMER
+          =============
+
+          A desktop app that reminds you to stretch at regular intervals.
+
+          REQUIREMENTS
+          ------------
+          Python 3.10+ (free from Microsoft Store or python.org)
+
+          HOW TO RUN
+          ----------
+          Double-click StretchTimer.bat
+
+          If Python is not installed, you'll be guided to install it.
+          After installing Python, click "Recheck" to continue.
+
+          FEATURES
+          --------
+          - Configurable reminder intervals
+          - Standing stretches with step-by-step instructions
+          - Eye exercises and breathing exercises
+          - Light/dark themes
+          - Quiet hours
+          - Desktop notifications
+          - Auto-saved settings
+
+          AUTO-START WITH WINDOWS
+          -----------------------
+          To have Stretch Timer start automatically when you log in:
+
+          1. Press Win+R to open the Run dialog
+          2. Type: shell:startup
+          3. Press Enter (opens your Startup folder)
+          4. Right-click in the folder and select "New > Shortcut"
+          5. Browse to StretchTimer.bat and select it
+          6. Name the shortcut "Stretch Timer"
+
+          The app will now start automatically when you log in.
+          '@ | Out-File -FilePath dist/README.txt -Encoding ASCII
+
+          # Create ZIP
+          Compress-Archive -Path dist -DestinationPath StretchTimer.zip -Force
+
+          # Show contents
+          Write-Host "Created StretchTimer.zip with contents:"
+          Get-ChildItem dist
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: StretchTimer.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
