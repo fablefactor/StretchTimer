@@ -14,9 +14,13 @@ A cross-platform desktop application (Windows & Linux) that reminds you to get u
 - **Audio Notifications** - Sound alerts with cross-platform support (can be disabled)
 - **Persistent Settings** - Your preferences are saved automatically
 
-## Screenshot
+## Screenshots
 
 The app displays step-by-step instructions for each stretch, paired with either an eye exercise or breathing exercise (alternating).
+
+| Light Theme | Dark Theme | Popup |
+|-------------|------------|-------|
+| ![Light Theme](images/screenshot-light.png) | ![Dark Theme](images/screenshot-dark.png) | ![Popup](images/screenshot-popup.png) |
 
 ## Requirements
 

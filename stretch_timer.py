@@ -569,7 +569,7 @@ class StretchTimerApp:
         self.quiet_end = tk.StringVar(value="08:00")
 
         # Popup settings
-        self.popup_timeout_seconds = tk.IntVar(value=180)
+        self.popup_timeout_seconds = tk.IntVar(value=300)
         self.popup_persistent = tk.BooleanVar(value=False)
 
         # Sound settings
