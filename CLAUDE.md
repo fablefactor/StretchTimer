@@ -24,6 +24,11 @@ python stretch_timer.py
 - **Threading:** Background timer loop runs in separate thread, uses `root.after()` for thread-safe UI updates
 - **Persistence:** JSON settings file (`stretch_timer_settings.json`) in the same directory
 
+**Utility functions:**
+- `format_duration(seconds)` - Formats duration for display
+  - Input: int (seconds) or tuple (min, max) for ranges
+  - Output: "30 sec", "1 min", or "1-2 min"
+
 **Key data structures:**
 - `STRETCHES` - List of 21 standing body stretches (5 steps each)
 - `EYE_EXERCISES` - List of 6 eye exercises (3-4 steps each)
@@ -145,7 +150,7 @@ Create releases via CLI:
 
 The main window and popup must be tall enough to display both the body stretch (5 steps) and secondary exercise (header + 4 steps). When adjusting window sizes:
 
-- **Main window:** `self.root.geometry("WIDTHxHEIGHT")` in `__init__` (currently 480x820)
-- **Popup window:** `popup.geometry("WIDTHxHEIGHT")` in `show_stretch_popup()` (currently 450x560), also update the centering calculation below it
+- **Main window:** `self.root.geometry("WIDTHxHEIGHT")` in `__init__` (currently 480x860)
+- **Popup window:** `popup.geometry("WIDTHxHEIGHT")` in `show_stretch_popup()` (currently 450x600), also update the centering calculation below it
 
 If adding more steps to exercises or increasing font sizes, increase the height accordingly. The popup auto-centers on screen using `winfo_screenwidth()`/`winfo_screenheight()`.

@@ -1,6 +1,6 @@
 # Stretch Timer
 
-A Windows desktop application that reminds you to get up and stretch at regular intervals. Perfect for desk workers who want to maintain good posture and eye health.
+A cross-platform desktop application (Windows & Linux) that reminds you to get up and stretch at regular intervals. Perfect for desk workers who want to maintain good posture and eye health.
 
 ## Features
 
@@ -11,6 +11,7 @@ A Windows desktop application that reminds you to get up and stretch at regular 
 - **Quiet Hours** - Automatically pause reminders during specified times
 - **Light/Dark Themes** - Easy on the eyes
 - **Desktop Notifications** - Never miss a stretch break
+- **Audio Notifications** - Sound alerts with cross-platform support (can be disabled)
 - **Persistent Settings** - Your preferences are saved automatically
 
 ## Screenshot
@@ -19,33 +20,44 @@ The app displays step-by-step instructions for each stretch, paired with either 
 
 ## Requirements
 
+### Windows
 - Windows 10/11
-- Python 3.10+ (free from [Microsoft Store](https://apps.microsoft.com/detail/9NCVDN91XZQP) or [python.org](https://python.org))
+- Python 3.10+ (from [Microsoft Store](https://apps.microsoft.com/detail/9NCVDN91XZQP) or [python.org](https://python.org))
+
+### Linux
+- Python 3.10+ with tkinter (`sudo apt install python3-tk` on Debian/Ubuntu)
+- Optional: PulseAudio for sound notifications
 
 ## Quick Start
 
 ### Option 1: Run directly
 ```bash
 pip install plyer
-python stretch_timer.py
+python stretch_timer.py  # or python3 on Linux
 ```
 
 ### Option 2: Use the launcher
-Double-click `StretchTimer.bat` in the `dist` folder. It will:
-- Check if Python is installed (guides you to install if not)
-- Install the `plyer` dependency automatically
-- Launch the app
+- **Windows:** Double-click `StretchTimer.bat`
+- **Linux:** Run `./StretchTimer.sh`
+
+The launcher will check for Python, install dependencies, and launch the app.
 
 ## Download
 
-Download the latest `StretchTimer.zip` from the [Releases](../../releases) page. Then:
-1. Extract the ZIP
-2. Double-click `StretchTimer.bat`
+Download from the [Releases](../../releases) page:
+
+| Platform | File | Launcher |
+|----------|------|----------|
+| Windows | `StretchTimer-Windows.zip` | `StretchTimer.bat` |
+| Linux | `stretch_timer-linux.tar.gz` | `StretchTimer.sh` |
+
+1. Extract the archive
+2. Run the launcher for your platform
 3. Install Python if prompted
 
 ## Creating a Release (for maintainers)
 
-Releases are automated via GitHub Actions. When you create a release, `StretchTimer.zip` is built and attached automatically.
+Releases are automated via GitHub Actions. When you create a release, both `StretchTimer-Windows.zip` and `stretch_timer-linux.tar.gz` are built and attached automatically.
 
 **Via GitHub web UI (easiest):**
 1. Go to Releases → "Draft a new release"
@@ -60,25 +72,33 @@ git push origin v1.0.0
 gh release create v1.0.0 --title "v1.0.0" --notes "Release notes here"
 ```
 
-For local testing, run `Deploy.bat` to create `StretchTimer.zip` locally.
+**For local testing:**
+- **Windows:** Run `Deploy.bat` to create `StretchTimer-Windows.zip`
+- **Linux:** Run `./deploy.sh` to create `stretch_timer-linux.tar.gz`
 
-## Auto-Start with Windows
+## Auto-Start on Login
 
-To have Stretch Timer start automatically when you log in:
+### Windows
+1. Press `Win+R`, type `shell:startup`, press Enter
+2. Create a shortcut to `StretchTimer.bat`
 
-1. Press `Win+R` to open the Run dialog
-2. Type `shell:startup` and press Enter
-3. Right-click in the folder and select "New > Shortcut"
-4. Browse to `StretchTimer.bat` and select it
-5. Name the shortcut "Stretch Timer"
+### Linux
+Create `~/.config/autostart/stretch-timer.desktop`:
+```ini
+[Desktop Entry]
+Type=Application
+Name=Stretch Timer
+Exec=/path/to/stretch_timer/StretchTimer.sh
+```
 
 ## Files
 
 | File | Description |
 |------|-------------|
 | `stretch_timer.py` | Main application |
-| `Deploy.bat` | Creates distributable ZIP package locally |
-| `Run.bat` | Quick launcher for development |
+| `Deploy.bat` | Creates distributable ZIP package locally (Windows) |
+| `deploy.sh` | Creates distributable tar.gz package locally (Linux) |
+| `Run.bat` | Quick launcher for development (Windows) |
 | `.github/workflows/release.yml` | GitHub Actions workflow for automated releases |
 | `CLAUDE.md` | Development notes for Claude Code |
 
