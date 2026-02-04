@@ -73,6 +73,7 @@ def main():
     app.stretch_count = 3  # Show some activity
     app.current_stretch = stretch
     app.current_secondary_exercise = secondary_exercise
+    app.last_secondary_type = secondary_type  # Important for theme toggle
 
     # Update UI
     app.count_value.configure(text=str(app.stretch_count))
