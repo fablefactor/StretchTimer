@@ -110,11 +110,31 @@ SETTINGS_FILE = os.path.join(
     "stretch_timer_settings.json"
 )
 
+
+def format_duration(seconds):
+    """
+    Format duration in seconds to display string.
+
+    Args:
+        seconds: int or tuple of (min, max) for ranges
+
+    Returns:
+        Formatted string like "30 sec", "1 min", or "1-2 min"
+    """
+    if isinstance(seconds, tuple):
+        min1, min2 = seconds[0] // 60, seconds[1] // 60
+        return f"{min1}-{min2} min"
+    if seconds >= 60:
+        mins = seconds // 60
+        return f"{mins} min"
+    return f"{seconds} sec"
+
+
 # Breathing exercises - alternates with eye exercises
 BREATHING_EXERCISES = [
     {
         "name": "Box Breathing",
-        "duration": "1 min",
+        "duration": 60,
         "steps": [
             "Inhale slowly for 4 seconds",
             "Hold your breath for 4 seconds",
@@ -124,7 +144,7 @@ BREATHING_EXERCISES = [
     },
     {
         "name": "4-7-8 Relaxing Breath",
-        "duration": "1 min",
+        "duration": 60,
         "steps": [
             "Inhale quietly through nose for 4 seconds",
             "Hold your breath for 7 seconds",
@@ -134,7 +154,7 @@ BREATHING_EXERCISES = [
     },
     {
         "name": "Deep Belly Breathing",
-        "duration": "1 min",
+        "duration": 60,
         "steps": [
             "Place hand on belly, relax shoulders",
             "Inhale deeply, feel belly rise",
@@ -144,7 +164,7 @@ BREATHING_EXERCISES = [
     },
     {
         "name": "Energizing Breath",
-        "duration": "30 sec",
+        "duration": 30,
         "steps": [
             "Take a quick sniff-sniff-sniff through nose",
             "Exhale fully through mouth with a 'hah'",
@@ -154,7 +174,7 @@ BREATHING_EXERCISES = [
     },
     {
         "name": "Calming Exhale Focus",
-        "duration": "1 min",
+        "duration": 60,
         "steps": [
             "Inhale naturally for 4 seconds",
             "Exhale slowly for 6-8 seconds",
@@ -164,7 +184,7 @@ BREATHING_EXERCISES = [
     },
     {
         "name": "Three-Part Breath",
-        "duration": "1 min",
+        "duration": 60,
         "steps": [
             "Inhale: fill belly first, then ribs, then chest",
             "One smooth breath filling bottom to top",
@@ -178,7 +198,7 @@ BREATHING_EXERCISES = [
 EYE_EXERCISES = [
     {
         "name": "Eye Focus - Window Gaze",
-        "duration": "20 sec",
+        "duration": 20,
         "steps": [
             "Look out a window at the farthest point",
             "Focus on that distant point for 20 seconds",
@@ -187,7 +207,7 @@ EYE_EXERCISES = [
     },
     {
         "name": "Eye Focus - Near and Far",
-        "duration": "30 sec",
+        "duration": 30,
         "steps": [
             "Focus on your thumb 10 inches away for 5 sec",
             "Look at something 20+ feet away for 5 sec",
@@ -196,7 +216,7 @@ EYE_EXERCISES = [
     },
     {
         "name": "20-20-20 Rule",
-        "duration": "20 sec",
+        "duration": 20,
         "steps": [
             "Find an object at least 20 feet away",
             "Focus on it for 20 seconds",
@@ -205,7 +225,7 @@ EYE_EXERCISES = [
     },
     {
         "name": "Eye Relaxation - Palming",
-        "duration": "20 sec",
+        "duration": 20,
         "steps": [
             "Rub palms together to warm them",
             "Cup warm palms over closed eyes",
@@ -214,7 +234,7 @@ EYE_EXERCISES = [
     },
     {
         "name": "Eye Circles",
-        "duration": "30 sec",
+        "duration": 30,
         "steps": [
             "Keep head still, look up",
             "Slowly circle eyes clockwise",
@@ -224,7 +244,7 @@ EYE_EXERCISES = [
     },
     {
         "name": "Rapid Blinking",
-        "duration": "20 sec",
+        "duration": 20,
         "steps": [
             "Blink rapidly for 10 seconds",
             "Close eyes and relax for 5 seconds",
@@ -239,7 +259,7 @@ STRETCHES = [
     # === NECK STRETCHES ===
     {
         "name": "Neck Half-Rolls",
-        "duration": "1 minute",
+        "duration": 60,
         "steps": [
             "Stand straight, relax your shoulders",
             "Drop chin to chest gently",
@@ -250,7 +270,7 @@ STRETCHES = [
     },
     {
         "name": "Neck Side Stretch",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Stand tall with shoulders relaxed",
             "Tilt your right ear toward right shoulder",
@@ -261,7 +281,7 @@ STRETCHES = [
     },
     {
         "name": "Chin Tucks",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Stand with your back against a wall",
             "Pull your chin straight back (make a double chin)",
@@ -272,7 +292,7 @@ STRETCHES = [
     },
     {
         "name": "Neck Rotation",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Stand tall, face forward",
             "Slowly turn head to look over right shoulder",
@@ -283,7 +303,7 @@ STRETCHES = [
     },
     {
         "name": "Forward Neck Stretch",
-        "duration": "20 seconds",
+        "duration": 20,
         "steps": [
             "Stand with good posture",
             "Interlace fingers behind your head",
@@ -295,7 +315,7 @@ STRETCHES = [
     # === SHOULDER STRETCHES ===
     {
         "name": "Shoulder Rolls",
-        "duration": "1 minute",
+        "duration": 60,
         "steps": [
             "Stand relaxed with arms at your sides",
             "Raise shoulders up toward your ears",
@@ -306,7 +326,7 @@ STRETCHES = [
     },
     {
         "name": "Shoulder Shrugs",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Stand relaxed, arms at sides",
             "Raise shoulders up to your ears",
@@ -317,7 +337,7 @@ STRETCHES = [
     },
     {
         "name": "Cross-Body Arm Stretch",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Extend right arm across your chest",
             "Use left hand to press it closer",
@@ -328,7 +348,7 @@ STRETCHES = [
     },
     {
         "name": "Chest Opener",
-        "duration": "15 seconds",
+        "duration": 15,
         "steps": [
             "Stand tall with good posture",
             "Clasp hands behind your back",
@@ -340,7 +360,7 @@ STRETCHES = [
     # === BODY STRETCHES ===
     {
         "name": "Reach for the Ceiling",
-        "duration": "10 seconds",
+        "duration": 10,
         "steps": [
             "Stand tall with feet shoulder-width apart",
             "Raise both arms straight overhead",
@@ -351,7 +371,7 @@ STRETCHES = [
     },
     {
         "name": "Standing Toe Touch",
-        "duration": "15 seconds",
+        "duration": 15,
         "steps": [
             "Stand with feet hip-width apart",
             "Bend forward slowly from hips",
@@ -362,7 +382,7 @@ STRETCHES = [
     },
     {
         "name": "Torso Twist",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Stand with feet shoulder-width apart",
             "Place hands on hips",
@@ -373,7 +393,7 @@ STRETCHES = [
     },
     {
         "name": "Side Bends",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Stand with feet shoulder-width apart",
             "Raise right arm overhead",
@@ -385,7 +405,7 @@ STRETCHES = [
     # === ARM/WRIST STRETCHES ===
     {
         "name": "Wrist Circles",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Extend both arms in front of you",
             "Make fists with both hands",
@@ -396,7 +416,7 @@ STRETCHES = [
     },
     {
         "name": "Arm Circles",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Stand with feet shoulder-width apart",
             "Extend arms straight out to sides",
@@ -407,7 +427,7 @@ STRETCHES = [
     },
     {
         "name": "Wrist Flexor Stretch",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Extend right arm, palm facing up",
             "Use left hand to pull fingers down",
@@ -419,7 +439,7 @@ STRETCHES = [
     # === LEG/BALANCE STRETCHES ===
     {
         "name": "One Leg Balance",
-        "duration": "1 minute",
+        "duration": 60,
         "steps": [
             "Stand near a wall for support if needed",
             "Lift your right foot off the ground",
@@ -430,7 +450,7 @@ STRETCHES = [
     },
     {
         "name": "Calf Raises",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Stand with feet hip-width apart",
             "Rise up onto your toes",
@@ -441,7 +461,7 @@ STRETCHES = [
     },
     {
         "name": "March in Place",
-        "duration": "1-2 minutes",
+        "duration": (60, 120),
         "steps": [
             "Stand with feet together",
             "Lift right knee up high",
@@ -452,7 +472,7 @@ STRETCHES = [
     },
     {
         "name": "Standing Quad Stretch",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Stand near wall for balance",
             "Grab right ankle behind you",
@@ -463,7 +483,7 @@ STRETCHES = [
     },
     {
         "name": "Standing Hip Flexor Stretch",
-        "duration": "30 seconds",
+        "duration": 30,
         "steps": [
             "Take a big step forward with right foot",
             "Lower into a shallow lunge",
@@ -1177,7 +1197,7 @@ class StretchTimerApp:
         # Update UI - show both exercises
         self.count_value.configure(text=str(self.stretch_count))
         self.stretch_name_label.configure(text=f"🧘 {stretch['name']}")
-        self.stretch_duration_label.configure(text=stretch["duration"])
+        self.stretch_duration_label.configure(text=format_duration(stretch["duration"]))
 
         # Create step labels for main stretch + secondary exercise
         self.create_combined_step_labels(stretch, secondary_exercise, secondary_type)
@@ -1283,7 +1303,7 @@ class StretchTimerApp:
 
         tk.Label(
             secondary_header,
-            text=secondary_exercise["duration"],
+            text=format_duration(secondary_exercise["duration"]),
             font=("Segoe UI", 8),
             fg=secondary_color,
             bg=c["card_bg"],
@@ -1383,7 +1403,7 @@ class StretchTimerApp:
 
         tk.Label(
             stretch_header,
-            text=stretch["duration"],
+            text=format_duration(stretch["duration"]),
             font=("Segoe UI", 9),
             bg=c["card_bg"],
             fg=c["accent"]
@@ -1427,7 +1447,7 @@ class StretchTimerApp:
 
         tk.Label(
             secondary_header,
-            text=secondary_exercise["duration"],
+            text=format_duration(secondary_exercise["duration"]),
             font=("Segoe UI", 9),
             bg=c["card_bg"],
             fg=secondary_color
