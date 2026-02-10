@@ -633,7 +633,7 @@ class StretchTimerApp:
 
         self.timer_label = tk.Label(
             self.timer_card,
-            text="30:00",
+            text=f"{self.interval_minutes.get():02d}:00",
             font=("Segoe UI", 36, "bold")
         )
         self.timer_label.pack(pady=6)
